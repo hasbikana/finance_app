@@ -1,31 +1,29 @@
-
 import 'package:dio/dio.dart';
 import 'storage_service.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://192.168.18.15:8000/api';
+  static final _dio = Dio(BaseOptions(
+    baseUrl: 'http://192.168.18.15:8080/api', // Ganti dengan URL API Anda
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 10),
+    headers: {'Accept': 'application/json'},
+  ))..interceptors.add(_AuthInterceptor());
 
-  static final Dio dio = Dio(
-    BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 20),
-      receiveTimeout: const Duration(seconds: 20),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    ),
-  )..interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final token = await StorageService.getToken();
+  static Dio get dio => _dio;
+}
 
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
+class _AuthInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    final token = await StorageService.getToken();
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    handler.next(options);
+  }
 
-          return handler.next(options);
-        },
-      ),
-    );
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    handler.next(err);
+  }
 }

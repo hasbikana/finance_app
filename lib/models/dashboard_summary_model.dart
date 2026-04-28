@@ -13,33 +13,11 @@ class DashboardSummaryModel {
 
   factory DashboardSummaryModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] ?? json;
-
-    final income = int.tryParse(
-          (data['total_income'] ?? data['income'] ?? 0).toString(),
-        ) ??
-        0;
-
-    final expense = int.tryParse(
-          (data['total_expense'] ?? data['expense'] ?? 0).toString(),
-        ) ??
-        0;
-
-    final balance = int.tryParse(
-          (data['balance'] ?? data['saldo'] ?? income - expense).toString(),
-        ) ??
-        income - expense;
-
-    final transactionCount = int.tryParse(
-          (data['transaction_count'] ?? data['total_transactions'] ?? 0)
-              .toString(),
-        ) ??
-        0;
-
     return DashboardSummaryModel(
-      totalIncome: income,
-      totalExpense: expense,
-      balance: balance,
-      transactionCount: transactionCount,
+      totalIncome: int.tryParse(data['total_income']?.toString() ?? '0') ?? 0,
+      totalExpense: int.tryParse(data['total_expense']?.toString() ?? '0') ?? 0,
+      balance: int.tryParse(data['balance']?.toString() ?? '0') ?? 0,
+      transactionCount: int.tryParse(data['transaction_count']?.toString() ?? '0') ?? 0,
     );
   }
 
